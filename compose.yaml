@@ -1,0 +1,35 @@
+services:
+  jenkins:
+    build:
+      context: ./.docker/jenkins/
+      dockerfile: Dockerfile.jenkins
+    container_name: jenkins
+    hostname: jenkins
+    restart: always
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      - JENKINS_USER=jenkins
+      - JENKINS_GROUP=jenkins
+      - UID=1000
+      - GID=1000
+    volumes:
+      - ./.docker-data/jenkins/data:/var/jenkins_home
+      - ./.docker-data/jenkins/logs:/var/log/jenkins
+      - ./.docker-data/jenkins/plugins:/var/jenkins_plugins
+      - .:/var/jenkins_home/TPs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/login || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  jenkins-data:
+    driver: local
+
+networks:
+  tuto:
+    driver: bridge
